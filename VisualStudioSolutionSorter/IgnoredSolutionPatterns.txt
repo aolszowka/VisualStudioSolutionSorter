@@ -1,0 +1,4 @@
+﻿# This file contains a set of Regular Expression Ignores for Solution files to
+# exclude from processing; you can add as many as you like (1 RegEx per line);
+# you can also add comments with # but only at the start of a line
+#.*\\Examples\\.*
