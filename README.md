@@ -104,6 +104,8 @@ In the above example the Project (`{B8C26B83-12CE-487A-85DD-E0AF792E9583}`) from
 
 For the purposes of this tool a simple alphabetical sort is applied to this section as well. This has the side affect that projects are not grouped by their folder, but rather by their Project Guid. This might be an ideal place for hacking/changes to this tool.
 
+You need to be careful of invalid `NestedProject` Entries which may have been previously added; due to this bug https://github.com/microsoft/msbuild/issues/4835 in MSBuild running this tool may result in uncovering these bad solutions.
+
 ## Usage
 ```text
 Usage: VisualStudioSolutionSorter [validate] directory/solution [ignore.txt]
