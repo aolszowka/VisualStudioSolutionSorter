@@ -119,7 +119,7 @@ namespace VisualStudioSolutionSorter
                     }
                     else if (File.Exists(targetPath))
                     {
-                        string updatingSingleFile = $"Shaking solution `{targetPath}`";
+                        string updatingSingleFile = $"Sorting solution `{targetPath}`";
                         Console.WriteLine(updatingSingleFile);
                         SortSolution(targetPath, true);
 
