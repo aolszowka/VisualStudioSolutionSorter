@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("VisualStudioSolutionSorter")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A program for sorting Visual Studio Solution Files (sln) in a deterministic manner.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Ace Olszowka (GitHub @aolszowka)")]
 [assembly: AssemblyProduct("VisualStudioSolutionSorter")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCopyright("Copyright © Ace Olszowka 2019-2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

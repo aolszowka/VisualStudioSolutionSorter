@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Program.cs" company="Ace Olszowka">
-//  Copyright (c) Ace Olszowka 2019. All rights reserved.
+//  Copyright (c) Ace Olszowka 2019-2020. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 namespace VisualStudioSolutionSorter
