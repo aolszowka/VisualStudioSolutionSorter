@@ -29,7 +29,7 @@ In addition this tool has the ability to run in a `validate` mode which will run
 When this tool is ran in `modify` mode (the default setting) the projects are modified and the return code is ALWAYS 0, the solutions that are modified are output to the console.
 
 ## Visual Studio Solution Format
-While not explicitly documented a careful reading of the above documentation shows how the solution file is split into various sections. The following is my interpretation of the file format based on what is documented and observed behavior of Visual Studio 2017:
+While not explicitly documented a careful reading of the above documentation shows how the solution file is split into various sections. The following is my interpretation of the file format based on what is documented and observed behavior of Visual Studio 2017/2019:
 
 ### Project Section
 The first section (after the header) is referred to in this document as the "Project" section and generally looks like this:
@@ -108,28 +108,28 @@ You need to be careful of invalid `NestedProject` Entries which may have been pr
 
 ## Usage
 ```text
-Usage: VisualStudioSolutionSorter [validate] directory/solution [ignore.txt]
+Usage: VisualStudioSolutionSorter [Solution.sln|C:\DirectoryWithSolutions] [-validate][-ignore=ignore.txt]
 
 Given either a Visual Studio Solution (*.sln) or a Directory to Scan; sort the
 solution files in a deterministic way.
 
-Invalid Command/Arguments. Valid commands are:
-
-Directory-Solution [IgnorePatterns.txt]
-    [MODIFIES] If given a solution file or a directory find all solution files.
-    Then opening each solution, grab all projects contained within the solution,
-    modifying the target solution to be sorted in a deterministic manner.
-
-validate Directory-Solution [IgnorePatterns.txt]
-    [READS] Performs the above operation but instead the return code represents
-    the number of solution files that would be sorted by this tool.
-
-In all cases you can provide an optional argument of IgnorePatterns.txt (you can
-use any filename) which should be a plain text file of regular expression
-filters of solution files you DO NOT want this tool to operate on.
-
 The sorting is pseudo alphabetical; the details of which are documented in the
 source.
+
+When this project is ran with --validate  it performs the above operation as
+described but instead the return code represents the number of projects that
+would be removed from the given solution files.
+
+Arguments:
+
+               <>            Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions
+      --validate             Indicates if this tool should only be run in 
+                               validation mode
+      --ignore=VALUE         Path to plain text file of regular expression 
+                               filters of solution files you DO NOT want this 
+                               tool to operate on
+  -?, -h, --help             Show this message and exit
+
 ```
 
 ## Hacking
@@ -148,3 +148,6 @@ Pull requests and bug reports are welcomed so long as they are MIT Licensed.
 
 ## License
 This tool is MIT Licensed.
+
+## Third Party Licenses
+This project uses other open source contributions see [LICENSES.md](LICENSES.md) for a comprehensive listing.

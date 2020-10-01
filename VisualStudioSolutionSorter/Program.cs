@@ -11,139 +11,163 @@ namespace VisualStudioSolutionSorter
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+
+    using NDesk.Options;
+
     using VisualStudioSolutionSorter.Properties;
 
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
             // Always Error Unless Successful
-            int errorCode = -808;
+            int errorCode = 9009;
+            string targetArgument = string.Empty;
+            string ignoreFileArgument = string.Empty;
+            bool validateOnly = false;
+            bool showHelp = false;
 
-            if (args.Any())
+            OptionSet p = new OptionSet()
             {
-                string command = args.First().ToLowerInvariant();
+                { "<>", Strings.TargetArgumentDescription, v => targetArgument = v },
+                { "validate", Strings.ValidateDescription, v => validateOnly = v != null },
+                { "ignore=", Strings.IgnoreDescription, v => ignoreFileArgument = v },
+                { "?|h|help", Strings.HelpDescription, v => showHelp = v != null },
+            };
 
-                if (command.Equals("-?") || command.Equals("/?") || command.Equals("-help") || command.Equals("/help"))
+            try
+            {
+                p.Parse(args);
+            }
+            catch (OptionException)
+            {
+                Console.WriteLine(Strings.ShortUsageMessage);
+                Console.WriteLine($"Try `{Strings.ProgramName} --help` for more information.");
+                Environment.ExitCode = 21;
+                return;
+            }
+
+            if (showHelp || string.IsNullOrEmpty(targetArgument))
+            {
+                Environment.ExitCode = ShowUsage(p);
+            }
+            else if (!Directory.Exists(targetArgument) && !File.Exists(targetArgument))
+            {
+                Console.WriteLine(Strings.InvalidTargetArgument, targetArgument);
+                Environment.ExitCode = 9009;
+            }
+            else if (!string.IsNullOrEmpty(ignoreFileArgument) && !File.Exists(ignoreFileArgument))
+            {
+                Console.WriteLine(Strings.InvalidIgnoreFileArgument, ignoreFileArgument);
+                Environment.ExitCode = 9009;
+            }
+            else
+            {
+                // First see if we have an ignore file
+                string[] ignoredSolutionPatterns = new string[0];
+
+                if (!string.IsNullOrEmpty(ignoreFileArgument))
                 {
-                    errorCode = ShowUsage();
+                    // Because we're going to constantly use this for lookups save it off
+                    ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoreFileArgument).ToArray();
                 }
-                else if (command.Equals("validate"))
+
+                if (validateOnly)
                 {
-                    if (args.Length < 2)
+                    if (Directory.Exists(targetArgument))
                     {
-                        string error = "You must provide either a file or directory as a second argument to use validate";
-                        Console.WriteLine(error);
-                        errorCode = 1;
-                    }
-                    else
-                    {
-                        string targetArgument = args[1];
-
-                        if (Directory.Exists(targetArgument))
+                        if (ignoredSolutionPatterns.Any())
                         {
-                            string[] ignoredSolutionPatterns = new string[0];
+                            string message = $"Validating all solutions in `{targetArgument}` except those filtered by `{ignoreFileArgument}`";
+                            Console.WriteLine(message);
 
-                            if (args.Length == 2)
-                            {
-                                string validatingAllSolutions = $"Validating all solutions in `{targetArgument}`";
-                                Console.WriteLine(validatingAllSolutions);
-                            }
-                            else
-                            {
-                                string ignoredSolutionsArgument = args[2];
-                                string validatingAllSolutions = $"Validating all solutions in `{targetArgument}` except those filtered by `{ignoredSolutionsArgument}`";
-                                Console.WriteLine(validatingAllSolutions);
-
-                                // Because we're going to constantly use this for lookups save it off
-                                ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoredSolutionsArgument).ToArray();
-
-                                Console.WriteLine($"These are the ignored patterns (From: {ignoredSolutionsArgument})");
-                                foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
-                                {
-                                    Console.WriteLine("{0}", ignoredSolutionPattern);
-                                }
-                            }
-
-                            errorCode = SortSolutionDirectory(targetArgument, ignoredSolutionPatterns, false);
-                        }
-                        else if (File.Exists(targetArgument))
-                        {
-                            string validatingSingleFile = $"Validating solution `{targetArgument}`";
-                            Console.WriteLine(validatingSingleFile);
-                            errorCode = SortSolution(targetArgument, false);
-                        }
-                        else
-                        {
-                            string error = $"The provided path `{targetArgument}` is not a folder or file.";
-                            errorCode = 9009;
-                        }
-                    }
-                }
-                else
-                {
-                    string targetPath = command;
-
-                    if (Directory.Exists(targetPath))
-                    {
-                        IEnumerable<string> ignoredSolutionPatterns = new string[0];
-
-                        if (args.Length == 1)
-                        {
-                            string sortingAllSolutionsInDirectory = $"Sorting all Visual Studio Solutions (*.sln) in `{targetPath}`";
-                            Console.WriteLine(sortingAllSolutionsInDirectory);
-                        }
-                        else
-                        {
-                            string ignoredSolutionsArgument = args[1];
-                            string sortingAllSolutionsInDirectory = $"Sorting all solutions in `{targetPath}` except those filtered by `{ignoredSolutionsArgument}`";
-                            Console.WriteLine(sortingAllSolutionsInDirectory);
-
-                            // Because we're going to constantly use this for lookups save it off
-                            ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoredSolutionsArgument).ToArray();
-
-                            Console.WriteLine($"These are the ignored patterns (From: {ignoredSolutionsArgument})");
+                            Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
                             foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
                             {
                                 Console.WriteLine("{0}", ignoredSolutionPattern);
                             }
                         }
+                        else
+                        {
+                            string message = $"Validating all solutions in `{targetArgument}`";
+                            Console.WriteLine(message);
+                        }
 
-                        SortSolutionDirectory(targetPath, ignoredSolutionPatterns, true);
-
-                        // We don't care what happened here; we always return 0
-                        // because we assume that the version control system
-                        // will indicate changed files.
-                        errorCode = 0;
-
+                        Environment.ExitCode = SortSolutionDirectory(targetArgument, ignoredSolutionPatterns, false);
                     }
-                    else if (File.Exists(targetPath))
+                    else if (File.Exists(targetArgument))
                     {
-                        string updatingSingleFile = $"Sorting solution `{targetPath}`";
-                        Console.WriteLine(updatingSingleFile);
-                        SortSolution(targetPath, true);
-
-                        // We don't care what happened here; we always return 0
-                        // because we assume that the version control system
-                        // will indicate changed files.
-                        errorCode = 0;
+                        string message = $"Validating solution `{targetArgument}`";
+                        Console.WriteLine(message);
+                        Environment.ExitCode = SortSolution(targetArgument, false);
                     }
                     else
                     {
-                        string error = $"The specified path `{targetPath}` is not valid.";
-                        Console.WriteLine(error);
-                        errorCode = 1;
+                        // It should not be possible to reach this point
+                        throw new InvalidOperationException($"The provided path `{targetArgument}` is not a folder or file.");
+                    }
+                }
+                else
+                {
+                    if (Directory.Exists(targetArgument))
+                    {
+                        if (ignoredSolutionPatterns.Any())
+                        {
+                            string message = $"Sorting all Visual Studio Solutions (*.sln) in `{targetArgument}` except those filtered by `{ignoreFileArgument}`";
+                            Console.WriteLine(message);
+
+                            Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
+                            foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
+                            {
+                                Console.WriteLine("{0}", ignoredSolutionPattern);
+                            }
+                        }
+                        else
+                        {
+                            string message = $"Sorting all Visual Studio Solutions (*.sln) in `{targetArgument}`";
+                            Console.WriteLine(message);
+                        }
+
+                        // We don't care what happened here; we always return 0
+                        // because we assume that the version control system
+                        // will indicate changed files.
+                        SortSolutionDirectory(targetArgument, ignoredSolutionPatterns, true);
+                        Environment.ExitCode = 0;
+                    }
+                    else if (File.Exists(targetArgument))
+                    {
+                        string message = $"Shaking solution `{targetArgument}`";
+                        Console.WriteLine(message);
+
+                        // We don't care what happened here; we always return 0
+                        // because we assume that the version control system
+                        // will indicate changed files.
+                        SortSolution(targetArgument, true);
+                        Environment.ExitCode = 0;
+                    }
+                    else
+                    {
+                        // It should not be possible to reach this point
+                        throw new InvalidOperationException($"The provided path `{targetArgument}` is not a folder or file.");
                     }
                 }
             }
-            else
-            {
-                // This was a bad command
-                errorCode = ShowUsage();
-            }
+        }
 
-            Environment.Exit(errorCode);
-
+        /// <summary>
+        /// Prints the Usage of this Utility to the Console.
+        /// </summary>
+        /// <param name="p">The <see cref="OptionSet"/> for this program.</param>
+        /// <returns>An Exit Code Indicating that Help was Shown</returns>
+        private static int ShowUsage(OptionSet p)
+        {
+            Console.WriteLine(Strings.ShortUsageMessage);
+            Console.WriteLine();
+            Console.WriteLine(Strings.LongDescription);
+            Console.WriteLine();
+            Console.WriteLine($"               <>            {Strings.TargetArgumentDescription}");
+            p.WriteOptionDescriptions(Console.Out);
+            return 21;
         }
 
         /// <summary>
@@ -187,16 +211,6 @@ namespace VisualStudioSolutionSorter
             }
 
             return shouldProcessSolution;
-        }
-
-        /// <summary>
-        /// Prints the Usage of this Utility to the Console.
-        /// </summary>
-        /// <returns>An Exit Code Indicating that Help was Shown</returns>
-        private static int ShowUsage()
-        {
-            Console.WriteLine(Resources.HelpMessage);
-            return 21;
         }
 
         private static int SortSolutionDirectory(string targetDirectory, IEnumerable<string> ignoredSolutionPatterns, bool saveChanges)
