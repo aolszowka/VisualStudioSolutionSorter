@@ -146,7 +146,7 @@ Arguments:</value>
     <value>VisualStudioSolutionSorter</value>
   </data>
   <data name="ShortUsageMessage" xml:space="preserve">
-    <value>Usage: VisualStudioSolutionSorter [Solution.sln|C:\DirectoryWithSolutions] [-validate][-ignore=ignore.txt]</value>
+    <value>Usage: [Solution.sln|C:\DirectoryWithSolutions] [-validate][-ignore=ignore.txt]</value>
   </data>
   <data name="TargetArgumentDescription" xml:space="preserve">
     <value>Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions</value>

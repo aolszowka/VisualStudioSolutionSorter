@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>VisualStudioSolutionSorter.Tests</AssemblyName>
+    <ProjectGuid>{A8E9F0A4-B60C-4B1F-8958-E9E94E5E3911}</ProjectGuid>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\VisualStudioSolutionSorter.Examples\Sorted\dotnet-format.sln" Link="TestData\Sorted\dotnet-format.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VisualStudioSolutionSorter.Examples\Sorted\roslyn-Compilers.sln" Link="TestData\Sorted\roslyn-Compilers.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VisualStudioSolutionSorter.Examples\Unsorted\dotnet-format.sln" Link="TestData\Unsorted\dotnet-format.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VisualStudioSolutionSorter.Examples\Unsorted\roslyn-Compilers.sln" Link="TestData\Unsorted\roslyn-Compilers.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+  </ItemGroup>
+
+</Project>

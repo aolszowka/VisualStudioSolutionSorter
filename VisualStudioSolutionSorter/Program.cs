@@ -21,7 +21,6 @@ namespace VisualStudioSolutionSorter
         static void Main(string[] args)
         {
             // Always Error Unless Successful
-            int errorCode = 9009;
             string targetArgument = string.Empty;
             string ignoreFileArgument = string.Empty;
             bool validateOnly = false;
@@ -63,6 +62,8 @@ namespace VisualStudioSolutionSorter
             }
             else
             {
+                bool saveChanges = validateOnly == false;
+
                 // First see if we have an ignore file
                 string[] ignoredSolutionPatterns = new string[0];
 
@@ -72,84 +73,45 @@ namespace VisualStudioSolutionSorter
                     ignoredSolutionPatterns = _GetIgnoredSolutionPatterns(ignoreFileArgument).ToArray();
                 }
 
-                if (validateOnly)
+                if (Directory.Exists(targetArgument))
                 {
-                    if (Directory.Exists(targetArgument))
+                    if (ignoredSolutionPatterns.Any())
                     {
-                        if (ignoredSolutionPatterns.Any())
-                        {
-                            string message = $"Validating all solutions in `{targetArgument}` except those filtered by `{ignoreFileArgument}`";
-                            Console.WriteLine(message);
-
-                            Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
-                            foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
-                            {
-                                Console.WriteLine("{0}", ignoredSolutionPattern);
-                            }
-                        }
-                        else
-                        {
-                            string message = $"Validating all solutions in `{targetArgument}`";
-                            Console.WriteLine(message);
-                        }
-
-                        Environment.ExitCode = SortSolutionDirectory(targetArgument, ignoredSolutionPatterns, false);
-                    }
-                    else if (File.Exists(targetArgument))
-                    {
-                        string message = $"Validating solution `{targetArgument}`";
+                        string message = $"{(validateOnly ? "Validating" : "Sorting")} all Visual Studio Solutions (*.sln) in `{targetArgument}` except those filtered by `{ignoreFileArgument}`";
                         Console.WriteLine(message);
-                        Environment.ExitCode = SortSolution(targetArgument, false);
+
+                        Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
+                        foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
+                        {
+                            Console.WriteLine("{0}", ignoredSolutionPattern);
+                        }
                     }
                     else
                     {
-                        // It should not be possible to reach this point
-                        throw new InvalidOperationException($"The provided path `{targetArgument}` is not a folder or file.");
+                        string message = $"{(validateOnly ? "Validating" : "Sorting")} all Visual Studio Solutions (*.sln) in `{targetArgument}`";
+                        Console.WriteLine(message);
                     }
+
+                    Environment.ExitCode = SortSolutionDirectory(targetArgument, ignoredSolutionPatterns, saveChanges);
+                }
+                else if (File.Exists(targetArgument))
+                {
+                    string message = $"{(validateOnly ? "Validating" : "Sorting")} solution `{targetArgument}`";
+                    Console.WriteLine(message);
+                    Environment.ExitCode = SortSolution(targetArgument, saveChanges);
                 }
                 else
                 {
-                    if (Directory.Exists(targetArgument))
-                    {
-                        if (ignoredSolutionPatterns.Any())
-                        {
-                            string message = $"Sorting all Visual Studio Solutions (*.sln) in `{targetArgument}` except those filtered by `{ignoreFileArgument}`";
-                            Console.WriteLine(message);
+                    // It should not be possible to reach this point
+                    throw new InvalidOperationException($"The provided path `{targetArgument}` is not a folder or file.");
+                }
 
-                            Console.WriteLine($"These are the ignored patterns (From: {ignoreFileArgument})");
-                            foreach (string ignoredSolutionPattern in ignoredSolutionPatterns)
-                            {
-                                Console.WriteLine("{0}", ignoredSolutionPattern);
-                            }
-                        }
-                        else
-                        {
-                            string message = $"Sorting all Visual Studio Solutions (*.sln) in `{targetArgument}`";
-                            Console.WriteLine(message);
-                        }
-
-                        // We don't care what happened here; we always return 0
-                        // because we assume that the version control system
-                        // will indicate changed files.
-                        SortSolutionDirectory(targetArgument, ignoredSolutionPatterns, true);
-                        Environment.ExitCode = 0;
-                    }
-                    else if (File.Exists(targetArgument))
-                    {
-                        string message = $"Shaking solution `{targetArgument}`";
-                        Console.WriteLine(message);
-
-                        // We don't care what happened here; we always return 0
-                        // because we assume that the version control system
-                        // will indicate changed files.
-                        SortSolution(targetArgument, true);
-                        Environment.ExitCode = 0;
-                    }
-                    else
-                    {
-                        // It should not be possible to reach this point
-                        throw new InvalidOperationException($"The provided path `{targetArgument}` is not a folder or file.");
-                    }
+                // If in Fix Mode We don't care what happend; we always
+                // return 0 because we assume that the version control
+                // system will indicate changed files.
+                if (saveChanges)
+                {
+                    Environment.ExitCode = 0;
                 }
             }
         }

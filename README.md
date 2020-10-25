@@ -107,8 +107,15 @@ For the purposes of this tool a simple alphabetical sort is applied to this sect
 You need to be careful of invalid `NestedProject` Entries which may have been previously added; due to this bug https://github.com/microsoft/msbuild/issues/4835 in MSBuild running this tool may result in uncovering these bad solutions.
 
 ## Usage
+There are now two ways to run this tool:
+
+1. (Compiled Executable) Invoke the tool via `VisualStudioSolutionSorter` and pass the arguments.
+2. (Dotnet Tool) Install this tool using the following command `dotnet tool install VisualStudioSolutionSorter` (assuming that you have the nuget package in your feed) then invoke it via `dotnet sort-solution`
+
+In both cases the flags are identical to the tooling.
+
 ```text
-Usage: VisualStudioSolutionSorter [Solution.sln|C:\DirectoryWithSolutions] [-validate][-ignore=ignore.txt]
+Usage: [Solution.sln|C:\DirectoryWithSolutions] [-validate][-ignore=ignore.txt]
 
 Given either a Visual Studio Solution (*.sln) or a Directory to Scan; sort the
 solution files in a deterministic way.
@@ -123,13 +130,12 @@ would be removed from the given solution files.
 Arguments:
 
                <>            Either a Visual Studio Solution (*.sln) or Directory to scan for Visual Studio Solutions
-      --validate             Indicates if this tool should only be run in 
+      --validate             Indicates if this tool should only be run in
                                validation mode
-      --ignore=VALUE         Path to plain text file of regular expression 
-                               filters of solution files you DO NOT want this 
+      --ignore=VALUE         Path to plain text file of regular expression
+                               filters of solution files you DO NOT want this
                                tool to operate on
   -?, -h, --help             Show this message and exit
-
 ```
 
 ## Hacking

@@ -125,7 +125,7 @@ namespace VisualStudioSolutionSorter.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Usage: VisualStudioSolutionSorter [Solution.sln|C:\DirectoryWithSolutions] [-validate][-ignore=ignore.txt].
+        ///   Looks up a localized string similar to Usage: [Solution.sln|C:\DirectoryWithSolutions] [-validate][-ignore=ignore.txt].
         /// </summary>
         internal static string ShortUsageMessage {
             get {
