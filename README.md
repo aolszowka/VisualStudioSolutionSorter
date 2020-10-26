@@ -1,4 +1,6 @@
 # VisualStudioSolutionSorter
+![CI - Master](https://github.com/aolszowka/VisualStudioSolutionSorter/workflows/CI/badge.svg?branch=master)
+
 Utility to deterministically sort Visual Studio Solution Files.
 
 ## When To Use This Tool

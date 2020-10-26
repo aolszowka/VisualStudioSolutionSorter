@@ -109,8 +109,8 @@ namespace VisualStudioSolutionSorter.Tests
             var actualFileOutput = File.ReadAllText(newTemporaryFilePath);
             var expectedFileOutput = File.ReadAllText(expectedFileOutputPath);
 
-            Assert.That(actualExitCode, Is.EqualTo(expectedExitCode), $"Exit Code Unexpected. Commandline: `{commandLineArgument}`");
-            Assert.That(actualFileOutput, Is.EqualTo(expectedFileOutput), $"Expected File Output Did Not Match. Commandline: `{commandLineArgument}`");
+            Assert.That(actualExitCode, Is.EqualTo(expectedExitCode), $"Exit Code Unexpected. OriginalFile: `{testFilePath}` Commandline: `{commandLineArgument}`");
+            Assert.That(actualFileOutput, Is.EqualTo(expectedFileOutput), $"Expected File Output Did Not Match. OriginalFile: `{testFilePath}` Commandline: `{commandLineArgument}`");
         }
     }
 
