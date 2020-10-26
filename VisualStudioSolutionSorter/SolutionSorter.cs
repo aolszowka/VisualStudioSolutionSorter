@@ -33,7 +33,7 @@ namespace VisualStudioSolutionSorter
             // Compare this to the existing file; if they are not equal
             // then a change was made.
             IEnumerable<string> existingFileLines = File.ReadLines(targetSolution);
-            changesMade = !sortedLines.SequenceEqual(existingFileLines);
+            changesMade = !sortedLines.SequenceEqual(existingFileLines, StringComparer.Ordinal);
 
             if (saveChanges && changesMade)
             {
@@ -51,10 +51,10 @@ namespace VisualStudioSolutionSorter
 
             while (solutionLineEnumerator.MoveNext())
             {
-                if (solutionLineEnumerator.Current.StartsWith("Project"))
+                if (solutionLineEnumerator.Current.StartsWith("Project", StringComparison.Ordinal))
                 {
                     // We're in the "ProjectSection" we need to gather each project specification into an array and sort it
-                    SortedDictionary<string, IEnumerable<string>> projectSectionsInSolution = new SortedDictionary<string, IEnumerable<string>>();
+                    SortedDictionary<string, IEnumerable<string>> projectSectionsInSolution = new SortedDictionary<string, IEnumerable<string>>(StringComparer.OrdinalIgnoreCase);
 
                     do
                     {
@@ -65,13 +65,13 @@ namespace VisualStudioSolutionSorter
                             // Extract a Single Project
                             currentProjectLines.Add(solutionLineEnumerator.Current);
                             solutionLineEnumerator.MoveNext();
-                        } while (!solutionLineEnumerator.Current.StartsWith("Project") && !solutionLineEnumerator.Current.StartsWith("Global"));
+                        } while (!solutionLineEnumerator.Current.StartsWith("Project", StringComparison.Ordinal) && !solutionLineEnumerator.Current.StartsWith("Global", StringComparison.Ordinal));
 
                         // This will alphabetize the solutions by their first
                         // line, which usually means by project name.
                         projectSectionsInSolution.Add(currentProjectLines.First(), currentProjectLines);
 
-                    } while (!solutionLineEnumerator.Current.StartsWith("Global"));
+                    } while (!solutionLineEnumerator.Current.StartsWith("Global", StringComparison.Ordinal));
 
                     // Now that they're sorted flush them out to the buffer
                     foreach (KeyValuePair<string, IEnumerable<string>> projectSection in projectSectionsInSolution)
@@ -84,7 +84,7 @@ namespace VisualStudioSolutionSorter
 
                     yield return solutionLineEnumerator.Current;
                 }
-                else if (solutionLineEnumerator.Current.Trim().StartsWith("GlobalSection(ProjectConfigurationPlatforms) = postSolution"))
+                else if (solutionLineEnumerator.Current.Trim().StartsWith("GlobalSection(ProjectConfigurationPlatforms) = postSolution", StringComparison.Ordinal))
                 {
                     // Give back the ProjectConfiguration Line
                     yield return solutionLineEnumerator.Current;
@@ -96,7 +96,7 @@ namespace VisualStudioSolutionSorter
                     {
                         sortedConfigurations.Add(solutionLineEnumerator.Current);
                         solutionLineEnumerator.MoveNext();
-                    } while (!solutionLineEnumerator.Current.Trim().StartsWith("EndGlobalSection"));
+                    } while (!solutionLineEnumerator.Current.Trim().StartsWith("EndGlobalSection", StringComparison.Ordinal));
 
                     // yield back the sorted values
                     foreach (string sortedConfiguration in sortedConfigurations)
@@ -107,7 +107,7 @@ namespace VisualStudioSolutionSorter
                     // Give the EndGlobalSection back
                     yield return solutionLineEnumerator.Current;
                 }
-                else if (solutionLineEnumerator.Current.Trim().StartsWith("GlobalSection(NestedProjects) = preSolution"))
+                else if (solutionLineEnumerator.Current.Trim().StartsWith("GlobalSection(NestedProjects) = preSolution", StringComparison.Ordinal))
                 {
                     // Give back the NestedProjects Line
                     yield return solutionLineEnumerator.Current;
@@ -119,7 +119,7 @@ namespace VisualStudioSolutionSorter
                     {
                         sortedNestedProjects.Add(solutionLineEnumerator.Current);
                         solutionLineEnumerator.MoveNext();
-                    } while (!solutionLineEnumerator.Current.Trim().StartsWith("EndGlobalSection"));
+                    } while (!solutionLineEnumerator.Current.Trim().StartsWith("EndGlobalSection", StringComparison.Ordinal));
 
                     // yield back the sorted values
                     foreach (string sortedNestedProject in sortedNestedProjects)

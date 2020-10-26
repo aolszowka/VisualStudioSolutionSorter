@@ -65,7 +65,7 @@ namespace VisualStudioSolutionSorter
                 bool saveChanges = validateOnly == false;
 
                 // First see if we have an ignore file
-                string[] ignoredSolutionPatterns = new string[0];
+                string[] ignoredSolutionPatterns = Array.Empty<string>();
 
                 if (!string.IsNullOrEmpty(ignoreFileArgument))
                 {
@@ -148,7 +148,7 @@ namespace VisualStudioSolutionSorter
             IEnumerable<string> ignoredPatterns =
                 File
                 .ReadLines(targetIgnoreFile)
-                .Where(currentLine => !currentLine.StartsWith("#"));
+                .Where(currentLine => !currentLine.StartsWith("#", StringComparison.Ordinal));
 
             return ignoredPatterns;
         }
